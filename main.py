@@ -23,7 +23,7 @@ def corregir_texto(texto):
             continue
         if palabra not in banco_palabras:
             # Buscar sugerencias fonéticamente parecidas
-            sugerencias = difflib.get_close_matches(palabra, banco_palabras, n=10, cutoff=0.7)
+            sugerencias = difflib.get_close_matches(palabra, banco_palabras, n=10, cutoff=0.4)
             # Filtrar por frecuencia y por tipo de palabra (POS)
             sugerencias_filtradas = [
                 s for s in sugerencias
