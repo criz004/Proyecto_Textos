@@ -35,7 +35,8 @@ def corregir_texto(texto):
     return correcciones
 
 # Ejemplo de uso
-entrada = "el nino va a la escula con su peroo"
+entrada = "el nibo va a la escula con su peroo"
+
 correcciones = corregir_texto(entrada)
 
 print("Texto ingresado:", entrada)
