@@ -1,13 +1,37 @@
 from transformers import pipeline
+import re
 
-# Cargamos un modelo entrenado en español
 relleno = pipeline("fill-mask", model="dccuchile/bert-base-spanish-wwm-cased")
 
-# Texto con una palabra que vamos a evaluar
-oracion = "el niño va a la [MASK] con su perro"
+def corregir(texto):
+    palabras = texto.split()
+    sugerencias = {}
 
-# Obtener sugerencias para la palabra faltante
-resultados = relleno(oracion)
+    for i, palabra in enumerate(palabras):
+        # Heurística simple: detectar palabras "sospechosas"
+        if not re.fullmatch(r"[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]+", palabra):
+            continue  # saltar puntuación o números
 
-for r in resultados:
-    print(f"Sugerencia: {r['sequence']} (confianza: {r['score']:.4f})")
+        if len(palabra) < 3 or palabra.lower() in ["el", "la", "con", "a", "su", "va"]: 
+            continue  # ignorar palabras muy cortas o comunes
+
+        # Creamos la oración enmascarada
+        enmascarada = palabras.copy()
+        enmascarada[i] = "[MASK]"
+        oracion = " ".join(enmascarada)
+
+        resultados = relleno(oracion)
+        if resultados:
+            mejor = resultados[0]["token_str"]
+            if mejor.lower() != palabra.lower():  # si la sugerencia es diferente
+                sugerencias[palabra] = mejor
+
+    return sugerencias
+
+entrada = "el niñio va a la escueela con su peroo"
+correcciones = corregir(entrada)
+
+print("Texto original:", entrada)
+print("Correcciones sugeridas:")
+for incorrecta, sugerida in correcciones.items():
+    print(f"- '{incorrecta}' → '{sugerida}'")
